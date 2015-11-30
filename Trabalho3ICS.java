@@ -22,6 +22,8 @@ import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -42,6 +44,9 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
     
     public static final int NOTE_ON = 0x90;
     public static final int NOTE_OFF = 0x80;
+    public static final double[] frequencias = {32.7032, 34.6478, 36.7081, 38.8909,
+                                               41.2034, 43.6535, 46.2493, 48.9994, 
+                                               51.9131, 55.000, 58.2705, 61.7354};
     
 
     JButton botaoAbrir, botaoMostrar;
@@ -206,17 +211,19 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
             System.out.println("");
             System.out.println("Trilha: " + i );
             System.out.println("");
-            getDuracao(trilha[i]);
+            getDados(trilha[i]);
             i++;
         }
     }
-    public void getDuracao(Track trilha)
+    public void getDados(Track trilha)
     {
         int j = 0;
         int val = 0;
         float[] inicio = new float[5000];
         float[] duracao = new float[5000];
         float[] key = new float[5000];
+        float[] ampl = new float[5000];
+        double[] freq = new double[5000];
         
         while(j < trilha.size()){
             MidiMessage mensagem = trilha.get(j).getMessage();
@@ -232,6 +239,12 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                 {
                     inicio[val] = trilha.get(j).getTick();
                     key[val] = (float)mensagemNota.getData1();
+                    int indiceFreq = (int)key[val]/12;
+                    int oitava = (int)(key[val]/12)-1;
+                    freq[val] = frequencias[indiceFreq]*oitava;
+                    ampl[val] = mensagemNota.getData2();
+                    
+
                     val++;
                     
                     
@@ -248,8 +261,9 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                         {
                             float fim = trilha.get(j).getTick();
                             duracao[p] = fim - inicio[p];
-                            System.out.println("Tempo" + inicio[p] + " Nota:" + p + " Duracao: " + duracao[p]);
-
+                            System.out.print("Tempo" + inicio[p] + " Nota:" + p + " Duracao: " + duracao[p]);
+                            System.out.println(" Frequencia: " + freq[p] + " Amplitude:" + ampl[p]);
+                            
                         }
                         p++;
                     }
