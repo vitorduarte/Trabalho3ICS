@@ -1,40 +1,29 @@
-
 package trabalho3ics;
 
-
-
-import java.io.File;
-import java.io.IOException;
-
-import javax.swing.JFileChooser;
-
-import javax.swing.JButton;
-import javax.swing.JTextField;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
-import javax.swing.filechooser.FileFilter;
-
-import javax.swing.UIManager;
-import javax.swing.SwingUtilities;
-
-
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.BorderLayout;
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Receiver;
-
-import javax.sound.midi.InvalidMidiDataException;
-
-import javax.sound.midi.Track;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Track;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+
+import sintese.InstrumentoAditivo;
+import sintese.Som;
 
 public class Trabalho3ICS extends JPanel implements ActionListener {
 
@@ -52,10 +41,18 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
     JButton botaoAbrir, botaoMostrar;
     JTextField caminhoArq, Mostrador;
     JFileChooser pa;
+    
+    FileWriter arq = null;
             
 
     private Sequencer  sequenciador = null;
     private Sequence   sequencia;
+    
+    private Som som=null;
+    private int andamento_atual = 100;
+    private static final long serialVersionUID = 1L;
+    InstrumentoAditivo Ins1;
+
 
             
     public Trabalho3ICS() {
@@ -123,7 +120,8 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                     sequenciador.close();
                     sequenciador = null;
                 }
-                Sequence sequencianova = MidiSystem.getSequence(arqseqnovo);           
+                Sequence sequencianova = MidiSystem.getSequence(arqseqnovo);
+                sequencia = sequencianova;
                 double duracao = sequencianova.getMicrosecondLength()/1000000.0d;
                  
                 //botaoMOSTRADORarquivo.setText("Arquivo: \"" + arqseqnovo.getName() + "\"");                
@@ -135,21 +133,97 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                 System.out.println("Erro em carregaArquivoMidi: "+ e1.toString());
             }
         }
-    }
 
+    }
+    
     public void Mostrar(String caminho){
+        
+        
         try{
-            File arqmidi = new File(caminho);
+            //File arqmidi = new File(caminho);
             
-            sequencia    = MidiSystem.getSequence(arqmidi);
+
+            File file = new File("./Teste.java");
+            arq = new FileWriter(file);
+            arq.write("import java.awt.EventQueue;\n");
+            arq.write("import java.awt.Font;\n");
+            arq.write("import java.awt.event.ActionEvent;\n");
+            arq.write("import java.awt.event.ActionListener;\n");
+            arq.write("import java.util.Hashtable;\n");
+            arq.write("import java.util.LinkedList;\n");
+
+            arq.write("import javax.swing.JButton;\n");
+            arq.write("import javax.swing.JFrame;\n");
+            arq.write("import javax.swing.JLabel;\n");
+            arq.write("import javax.swing.JPanel;\n");
+            arq.write("import javax.swing.JSlider;\n");
+            arq.write("import javax.swing.JTextField;\n");
+            arq.write("import javax.swing.border.EmptyBorder;\n");
+            arq.write("import javax.swing.event.ChangeEvent;\n");
+        	arq.write("import javax.swing.event.ChangeListener;\n");
+
+        	arq.write("import sintese.Curva;\n");
+        	arq.write("import sintese.Envoltoria;\n");
+        	arq.write("import sintese.InstrumentoAditivo;\n");
+        	arq.write("import sintese.Melodia;\n");
+        	arq.write("import sintese.Nota;\n");
+        	arq.write("import sintese.Oscilador;\n");
+        	arq.write("import sintese.Polifonia;\n");
+        	arq.write("import sintese.Som;\n");
+        	arq.write("import sintese.UnidadeH;\n");
+        	arq.write("import sintese.Voz;\n");
+        	arq.write("import javax.swing.ImageIcon;\n");
+        	
+            arq.write("public class Teste{\n");
+            arq.write("\tInstrumentoAditivo Ins1;\n");
+            
+            arq.write("\tpublic Teste(){\n");
+            arq.write("\t\tCurva c_sustain = new Curva(512);\n");
+            arq.write("\t\tc_sustain.addPonto(0, 1750);\n");
+            arq.write("\t\tc_sustain.addPonto(512, 1750);\n");
+            arq.write("\t\tEnvoltoria sustain = new Envoltoria(c_sustain);\n");
+            arq.write("\t\tUnidadeH uH1 = new UnidadeH();\n");
+            arq.write("\t\tuH1.setEnvoltoria(sustain);\n");
+            arq.write("\t\tuH1.setLambda(0.5f);\n");
+            arq.write("\t\tOscilador osc = new Oscilador();\n");
+            arq.write("\t\tosc.setFrequencia(700f);\n");
+            arq.write("\t\tosc.setFase(1.2f);\n");
+            arq.write("\t\tuH1.setOscilador(osc);\n");
+            arq.write("\t\tIns1 = new InstrumentoAditivo();\n");
+            arq.write("\t\tIns1.addUnidade(uH1);\n");
+            
+            Track[] tracks = sequencia.getTracks();
+            int j=3;//Trilha escolhida
+                arq.write("\t\t Melodia mel"+j+"= new Melodia();");
+                arq.write("\n" + getInformacoes(sequencia, j));
+                arq.write("\t\t Som som"+ j +"= mel"+ j +".getSom(Ins1);\n");
+                arq.write("\t\t som"+ j +".salvawave();\n");
+                arq.write("\t\t som"+ j +".visualiza();\n");
+
+              
+            arq.write("\t}\n");
+            
+            arq.write("\tpublic static void main(String[] args) {\n");
+            arq.write("\t\tTeste teste = new Teste();\n");
+            arq.write("\t}\n");
+            arq.write("}\n");
+            
+            arq.close();
+
+			System.out.println("Done");
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
+            
+            
+            /*sequencia    = MidiSystem.getSequence(arqmidi);
             
             sequenciador = MidiSystem.getSequencer();  
-
-                sequenciador.setSequence(sequencia); 
-                sequenciador.open();  
-                Thread.sleep(500);
-                sequenciador.start();
-                getInformacoes(sequencia);
+            sequenciador.setSequence(sequencia); 
+            sequenciador.open();  
+            Thread.sleep(500);
+            sequenciador.start();
+            getInformacoes(sequencia);
   
                 
                 
@@ -163,7 +237,7 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
         }
         catch(Exception e){  
             System.out.println(e.toString());  
-        }  
+        }  */
     }
 
 
@@ -203,22 +277,16 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
             });
         }
 
-    public void getInformacoes(Sequence sequencia)
+    public String getInformacoes(Sequence sequencia, int n_trilha)
     {
-        Track[] trilha = sequencia.getTracks();
-        int i = 0;
-        while(trilha[i] != null){
-            System.out.println("");
-            System.out.println("Trilha: " + i );
-            System.out.println("");
-            getDados(trilha[i]);
-            i++;
-        }
-    }
-    public void getDados(Track trilha)
-    {
+        Track[] trilhas = sequencia.getTracks();
+        Track trilha = trilhas[n_trilha];
+        String saida = "";
+        String saida2;
+
         int j = 0;
         int val = 0;
+
         float[] inicio = new float[5000];
         float[] duracao = new float[5000];
         float[] key = new float[5000];
@@ -227,14 +295,10 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
         
         while(j < trilha.size()){
             MidiMessage mensagem = trilha.get(j).getMessage();
-            
-            
-            
             if(mensagem instanceof ShortMessage)
             {
                 ShortMessage mensagemNota = (ShortMessage)mensagem;
 
-                
                 if(mensagemNota.getCommand() == NOTE_ON)
                 {
                     inicio[val] = trilha.get(j).getTick();
@@ -243,8 +307,6 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                     int oitava = (int)(key[val]/12)-1;
                     freq[val] = frequencias[indiceFreq]*oitava;
                     ampl[val] = mensagemNota.getData2();
-                    
-
                     val++;
                     
                     
@@ -261,9 +323,9 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                         {
                             float fim = trilha.get(j).getTick();
                             duracao[p] = fim - inicio[p];
-                            System.out.print("Tempo" + inicio[p] + " Nota:" + p + " Duracao: " + duracao[p]);
-                            System.out.println(" Frequencia: " + freq[p] + " Amplitude:" + ampl[p]);
-                            
+                            saida2 = ("\t\tNota n" + p + " = new Nota(" + duracao[p]/1000 + ", " + freq[p] + ", " + ampl[p]/5+");\n" +
+                            "\t\tmel" + n_trilha + ".addNota(n" + p + ");\n");
+                            saida = saida.concat(saida2);
                         }
                         p++;
                     }
@@ -274,7 +336,6 @@ public class Trabalho3ICS extends JPanel implements ActionListener {
                 }
             j++;
             }
-            
-        }
-        
+            return saida;
+        }   
     }
